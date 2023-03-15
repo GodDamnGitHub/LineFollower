@@ -23,14 +23,14 @@ class Follower:
     upper_yellow = numpy.array([30, 255, 255])
     h, w, d = image.shape
     
-    # yellow area nearby
+    # only detect yellow area nearby
     mask = cv2.inRange(hsv, lower_yellow, upper_yellow)
     search_top = (int)(3*h/4)
     search_bot = (int)(3*h/4 + 20)
     mask[0:search_top, 0:w] = 0
     mask[search_bot:h, 0:w] = 0
     
-    # any yellow area in front
+    # detect any yellow area in front
     mask_0 = cv2.inRange(hsv, lower_yellow, upper_yellow)
     search_left = (int)(9*h/20)
     search_right = (int)(11*h/20)
@@ -42,6 +42,7 @@ class Follower:
     
     print(self.isStart)
     
+    # try to move to yellow line at the beginning
     if self.isStart:
       if M['m00'] > 0:
         self.isStart = False
@@ -49,7 +50,6 @@ class Follower:
         self.twist.linear.x = 0.2
         self.twist.angular.z = 0
         self.vel_pub.publish(self.twist)  
-      # keep rotating if no yellow area  
       else:
         self.twist.linear.x = 0
         self.twist.angular.z = -1
@@ -66,7 +66,7 @@ class Follower:
         self.twist.linear.x = 0.2
         self.twist.angular.z = -float(err) / 300
         self.vel_pub.publish(self.twist) 
-      # keep rotating if no yellow area  
+      # double back along the line
       else:
         self.twist.linear.x = 0
         self.twist.angular.z = -1
